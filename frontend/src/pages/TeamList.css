@@ -1,0 +1,369 @@
+.teamlist-page {
+  min-height: 100vh;
+  padding: 0 7%;
+  color: #30253f;
+  background: linear-gradient(180deg, #fffaff 0%, #ffffff 100%);
+  font-family: inherit;
+}
+
+.teamlist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  padding: 22px 0;
+  border-bottom: 1px solid #f1e8f5;
+}
+
+.teamlist-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #30253f;
+  font-size: 25px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.teamlist-brand img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.teamlist-brand-pink {
+  color: #e58bbd;
+}
+
+.teamlist-navigation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.teamlist-nav-button {
+  padding: 11px 15px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #81758e;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.teamlist-nav-button:hover,
+.teamlist-nav-button.active {
+  background: #fbecf6;
+  color: #c16eaa;
+}
+
+.teamlist-content {
+  padding: 55px 0 45px;
+}
+
+.teamlist-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+.teamlist-eyebrow {
+  margin-bottom: 10px;
+  color: #c16eaa;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.teamlist-heading h1 {
+  margin: 0 0 12px;
+  font-size: clamp(30px, 4vw, 40px);
+  letter-spacing: -1px;
+}
+
+.teamlist-heading h1 span {
+  color: #d987bd;
+}
+
+.teamlist-description {
+  margin: 0;
+  color: #81758e;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.teamlist-add-button {
+  flex-shrink: 0;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #d987bd, #a98be8);
+  color: white;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 18px #d987bd30;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.teamlist-add-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px #a98be840;
+}
+
+.teamlist-summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: fit-content;
+  min-width: 230px;
+  margin-bottom: 30px;
+  padding: 18px 24px;
+  border: 1px solid #f0e6f5;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 8px 25px #6f477008;
+}
+
+.teamlist-summary-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #fbecf6;
+  color: #c16eaa;
+  font-size: 25px;
+}
+
+.teamlist-summary div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.teamlist-summary span {
+  color: #81758e;
+  font-size: 12px;
+}
+
+.teamlist-summary strong {
+  font-size: 25px;
+}
+
+.teamlist-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.teamlist-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 25px;
+  border: 1px solid #f0e6f5;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 8px 30px #6f477008;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.teamlist-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px #6f477012;
+}
+
+.teamlist-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 20px;
+  border-radius: 15px;
+  font-size: 25px;
+}
+
+.teamlist-card-icon.pink {
+  background: #fbecf6;
+  color: #c16eaa;
+}
+
+.teamlist-card-icon.purple {
+  background: #f0eaff;
+  color: #9574d1;
+}
+
+.teamlist-card-icon.blue {
+  background: #eaf3ff;
+  color: #6c95d8;
+}
+
+.teamlist-card-label {
+  margin-bottom: 8px;
+  color: #c16eaa;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.teamlist-card h2 {
+  margin: 0 0 12px;
+  font-size: 19px;
+}
+
+.teamlist-card-description {
+  min-height: 65px;
+  margin: 0 0 22px;
+  color: #81758e;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.teamlist-card-members {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+  padding: 15px 0;
+  border-top: 1px solid #f5edf7;
+  color: #81758e;
+  font-size: 12px;
+}
+
+.teamlist-avatars {
+  display: flex;
+  padding-left: 4px;
+}
+
+.teamlist-avatars span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-left: -4px;
+  border: 2px solid white;
+  border-radius: 50%;
+  background: #f5e4f2;
+  color: #8f5d91;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.teamlist-avatars span:nth-child(2) {
+  background: #eae3ff;
+  color: #785caf;
+}
+
+.teamlist-avatars span:nth-child(3) {
+  background: #e3efff;
+  color: #567fb7;
+}
+
+.teamlist-card-actions {
+  padding-top: 12px;
+}
+
+.teamlist-card-actions button {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #eee1f4;
+  border-radius: 10px;
+  background: #fffaff;
+  color: #a96ca7;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.teamlist-card-actions button:hover {
+  border-color: #d987bd;
+  background: #fbecf6;
+}
+
+.teamlist-tip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 30px;
+  padding: 18px 22px;
+  border: 1px solid #f0e6f5;
+  border-radius: 16px;
+  background: #fffaff;
+}
+
+.teamlist-tip > span {
+  font-size: 22px;
+}
+
+.teamlist-tip p {
+  margin: 0;
+  color: #81758e;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.teamlist-tip strong {
+  color: #49345c;
+}
+
+.teamlist-footer {
+  padding: 24px 0;
+  border-top: 1px solid #f1e8f5;
+  color: #81758e;
+  font-size: 12px;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .teamlist-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .teamlist-header {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 600px) {
+  .teamlist-page {
+    padding: 0 5%;
+  }
+
+  .teamlist-navigation {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .teamlist-nav-button {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  .teamlist-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .teamlist-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .teamlist-card-description {
+    min-height: auto;
+  }
+}

@@ -1,0 +1,251 @@
+.signin-page {
+  min-height: 100vh;
+  padding: 0 7%;
+  color: #30253f;
+  background: linear-gradient(180deg, #fffaff 0%, #ffffff 100%);
+  font-family: inherit;
+}
+
+.signin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px 0;
+  border-bottom: 1px solid #f1e8f5;
+}
+
+.signin-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #30253f;
+  font-size: 25px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.signin-brand img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.signin-brand-pink {
+  color: #e58bbd;
+}
+
+.signin-back-button {
+  padding: 11px 16px;
+  border: 1px solid #eee1f4;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #49345c;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.signin-back-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px #a98be830;
+}
+
+.signin-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 95px);
+  padding: 45px 0 25px;
+}
+
+.signin-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 460px;
+  padding: 40px;
+  border: 1px solid #f0e6f5;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 15px 45px #6f477010;
+}
+
+.signin-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 24px;
+  border-radius: 16px;
+  background: #fbecf6;
+  color: #c16eaa;
+  font-size: 30px;
+}
+
+.signin-eyebrow {
+  margin-bottom: 10px;
+  color: #c16eaa;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.signin-card h1 {
+  margin: 0 0 12px;
+  font-size: 36px;
+  letter-spacing: -1px;
+}
+
+.signin-description {
+  margin-bottom: 30px;
+  color: #81758e;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.signin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.signin-field {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.signin-field label {
+  color: #49345c;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.signin-field input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 15px;
+  border: 1px solid #eee1f4;
+  border-radius: 12px;
+  outline: none;
+  background: #fffaff;
+  color: #30253f;
+  font: inherit;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.signin-field input:focus {
+  border-color: #d987bd;
+  box-shadow: 0 0 0 3px #d987bd20;
+}
+
+.signin-field input::placeholder {
+  color: #b6aabd;
+}
+
+.signin-submit {
+  width: 100%;
+  margin-top: 8px;
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #d987bd, #a98be8);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 18px #d987bd30;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.signin-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px #a98be840;
+}
+
+.signin-register {
+  margin: 25px 0 0;
+  color: #81758e;
+  font-size: 13px;
+  text-align: center;
+}
+
+.signin-register button {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #c16eaa;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.signin-register button:hover {
+  text-decoration: underline;
+}
+
+.signin-decoration {
+  position: absolute;
+  top: 50px;
+  right: 5%;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.signin-decoration img {
+  width: 130px;
+  height: 130px;
+  object-fit: contain;
+}
+
+.signin-footer {
+  margin-top: 35px;
+  color: #81758e;
+  font-size: 12px;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .signin-page {
+    padding: 0 5%;
+  }
+
+  .signin-header {
+    gap: 10px;
+  }
+
+  .signin-brand {
+    font-size: 21px;
+  }
+
+  .signin-brand img {
+    width: 34px;
+    height: 34px;
+  }
+
+  .signin-back-button {
+    padding: 9px;
+    font-size: 12px;
+  }
+
+  .signin-card {
+    padding: 28px 22px;
+  }
+
+  .signin-card h1 {
+    font-size: 30px;
+  }
+
+  .signin-decoration {
+    right: 0;
+  }
+}

@@ -1,0 +1,248 @@
+.teamform-page {
+  min-height: 100vh;
+  padding: 0 7%;
+  color: #30253f;
+  background: linear-gradient(180deg, #fffaff 0%, #ffffff 100%);
+  font-family: inherit;
+}
+
+.teamform-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px 0;
+  border-bottom: 1px solid #f1e8f5;
+}
+
+.teamform-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #30253f;
+  font-size: 25px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.teamform-brand img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.teamform-brand-pink {
+  color: #e58bbd;
+}
+
+.teamform-back {
+  padding: 11px 16px;
+  border: 1px solid #eee1f4;
+  border-radius: 12px;
+  background: white;
+  color: #49345c;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.teamform-back:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px #a98be830;
+}
+
+.teamform-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 45px 0 25px;
+}
+
+.teamform-card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 560px;
+  padding: 38px 40px;
+  border: 1px solid #f0e6f5;
+  border-radius: 24px;
+  background: white;
+  box-shadow: 0 15px 45px #6f477010;
+}
+
+.teamform-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 22px;
+  border-radius: 16px;
+  background: #fbecf6;
+  color: #c16eaa;
+  font-size: 28px;
+}
+
+.teamform-eyebrow {
+  margin-bottom: 10px;
+  color: #c16eaa;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.teamform-card h1 {
+  margin: 0 0 12px;
+  font-size: 34px;
+  letter-spacing: -1px;
+}
+
+.teamform-description {
+  margin-bottom: 30px;
+  color: #81758e;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.teamform-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.teamform-field {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.teamform-field label {
+  color: #49345c;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.teamform-field input,
+.teamform-field textarea,
+.teamform-field select {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 14px 15px;
+  border: 1px solid #eee1f4;
+  border-radius: 12px;
+  outline: none;
+  background: #fffaff;
+  color: #30253f;
+  font: inherit;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.teamform-field textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.teamform-field input:focus,
+.teamform-field textarea:focus,
+.teamform-field select:focus {
+  border-color: #d987bd;
+  box-shadow: 0 0 0 3px #d987bd20;
+}
+
+.teamform-field input::placeholder,
+.teamform-field textarea::placeholder {
+  color: #b6aabd;
+}
+
+.teamform-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.teamform-cancel,
+.teamform-submit {
+  padding: 13px 20px;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.teamform-cancel {
+  border: 1px solid #eee1f4;
+  background: white;
+  color: #81758e;
+}
+
+.teamform-submit {
+  border: none;
+  background: linear-gradient(135deg, #d987bd, #a98be8);
+  color: white;
+  box-shadow: 0 6px 18px #d987bd30;
+}
+
+.teamform-cancel:hover,
+.teamform-submit:hover {
+  transform: translateY(-2px);
+}
+
+.teamform-submit:hover {
+  box-shadow: 0 8px 20px #a98be840;
+}
+
+.teamform-footer {
+  margin-top: 30px;
+  color: #81758e;
+  font-size: 12px;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .teamform-page {
+    padding: 0 5%;
+  }
+
+  .teamform-header {
+    gap: 10px;
+  }
+
+  .teamform-brand {
+    font-size: 21px;
+  }
+
+  .teamform-brand img {
+    width: 34px;
+    height: 34px;
+  }
+
+  .teamform-back {
+    padding: 9px;
+    font-size: 11px;
+  }
+
+  .teamform-card {
+    padding: 28px 22px;
+  }
+
+  .teamform-card h1 {
+    font-size: 28px;
+  }
+
+  .teamform-actions {
+    flex-direction: column-reverse;
+  }
+
+  .teamform-cancel,
+  .teamform-submit {
+    width: 100%;
+  }
+}

@@ -1,0 +1,384 @@
+.memberlist-page {
+  min-height: 100vh;
+  padding: 0 7%;
+  color: #30253f;
+  background: linear-gradient(180deg, #fffaff 0%, #ffffff 100%);
+  font-family: inherit;
+}
+
+.memberlist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 0;
+  border-bottom: 1px solid #f1e8f5;
+}
+
+.memberlist-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #30253f;
+  font-size: 25px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.memberlist-brand img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.memberlist-brand-pink {
+  color: #e58bbd;
+}
+
+.memberlist-navigation {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.memberlist-navigation button {
+  padding: 11px 13px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #81758e;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.memberlist-navigation button:hover,
+.memberlist-navigation button.active {
+  background: #fbecf6;
+  color: #c16eaa;
+}
+
+.memberlist-content {
+  padding: 55px 0 45px;
+}
+
+.memberlist-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+.memberlist-eyebrow {
+  margin-bottom: 10px;
+  color: #c16eaa;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.memberlist-heading h1 {
+  margin: 0 0 12px;
+  font-size: clamp(30px, 4vw, 40px);
+  letter-spacing: -1px;
+}
+
+.memberlist-heading h1 span {
+  color: #d987bd;
+}
+
+.memberlist-description {
+  margin: 0;
+  color: #81758e;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.memberlist-add-button {
+  flex-shrink: 0;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #d987bd, #a98be8);
+  color: white;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 18px #d987bd30;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.memberlist-add-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px #a98be840;
+}
+
+.memberlist-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.memberlist-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px;
+  border: 1px solid #f0e6f5;
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 8px 25px #6f477008;
+}
+
+.memberlist-stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  font-size: 24px;
+}
+
+.memberlist-stat-icon.pink {
+  background: #fbecf6;
+  color: #c16eaa;
+}
+
+.memberlist-stat-icon.purple {
+  background: #f0eaff;
+  color: #9574d1;
+}
+
+.memberlist-stat-card div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.memberlist-stat-card span {
+  color: #81758e;
+  font-size: 12px;
+}
+
+.memberlist-stat-card strong {
+  font-size: 26px;
+}
+
+.memberlist-table-card {
+  overflow: hidden;
+  border: 1px solid #f0e6f5;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 8px 30px #6f477008;
+}
+
+.memberlist-table-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 23px 25px;
+  border-bottom: 1px solid #f5edf7;
+}
+
+.memberlist-table-heading h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.memberlist-table-heading > span {
+  color: #81758e;
+  font-size: 12px;
+}
+
+.memberlist-table-wrapper {
+  overflow-x: auto;
+}
+
+.memberlist-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.memberlist-table th {
+  padding: 16px 20px;
+  background: #fffaff;
+  color: #81758e;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.memberlist-table td {
+  padding: 18px 20px;
+  border-bottom: 1px solid #f5edf7;
+  color: #655673;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.memberlist-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.memberlist-table tbody tr:hover {
+  background: #fffaff;
+}
+
+.memberlist-person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.memberlist-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.memberlist-avatar.pink {
+  background: #fbecf6;
+  color: #c16eaa;
+}
+
+.memberlist-avatar.purple {
+  background: #f0eaff;
+  color: #9574d1;
+}
+
+.memberlist-avatar.blue {
+  background: #eaf3ff;
+  color: #6c95d8;
+}
+
+.memberlist-avatar.green {
+  background: #e7f7ed;
+  color: #529c72;
+}
+
+.memberlist-person-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.memberlist-person-info strong {
+  color: #49345c;
+  font-size: 13px;
+}
+
+.memberlist-person-info span {
+  color: #a092ad;
+  font-size: 11px;
+}
+
+.memberlist-role {
+  display: inline-block;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: #f5effb;
+  color: #9574d1;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.memberlist-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #529c72;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.memberlist-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #70c795;
+}
+
+.memberlist-tip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 25px;
+  padding: 18px 22px;
+  border: 1px solid #f0e6f5;
+  border-radius: 16px;
+  background: #fffaff;
+}
+
+.memberlist-tip > span {
+  font-size: 22px;
+}
+
+.memberlist-tip p {
+  margin: 0;
+  color: #81758e;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.memberlist-tip strong {
+  color: #49345c;
+}
+
+.memberlist-footer {
+  padding: 24px 0;
+  border-top: 1px solid #f1e8f5;
+  color: #81758e;
+  font-size: 12px;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .memberlist-header {
+    flex-wrap: wrap;
+  }
+
+  .memberlist-navigation {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 650px) {
+  .memberlist-page {
+    padding: 0 5%;
+  }
+
+  .memberlist-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .memberlist-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .memberlist-table-heading {
+    padding: 18px;
+  }
+
+  .memberlist-table th,
+  .memberlist-table td {
+    padding: 14px;
+  }
+}
