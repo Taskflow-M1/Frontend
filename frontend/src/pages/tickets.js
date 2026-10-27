@@ -1,0 +1,81 @@
+
+export const INITIAL_TICKETS = [
+  {
+    id: "TF-101",
+    title: "Créer la page de connexion",
+    project: "TaskFlow",
+    status: "À faire",
+    priority: "Haute",
+    assignee: "Sarah",
+    description: "Créer une page de connexion responsive.",
+    feature: "Authentification",
+    updated: "Aujourd'hui",
+  },
+  {
+    id: "TF-102",
+    title: "Concevoir le tableau de bord",
+    project: "TaskFlow",
+    status: "En cours",
+    priority: "Haute",
+    assignee: "Amel",
+    description: "Afficher les statistiques et les activités récentes.",
+    feature: "Dashboard",
+    updated: "Aujourd'hui",
+  },
+  {
+    id: "TF-103",
+    title: "Tester la création de tickets",
+    project: "TaskFlow",
+    status: "En test",
+    priority: "Moyenne",
+    assignee: "Hamza",
+    description: "Vérifier le formulaire et la validation des données.",
+    feature: "Gestion des tickets",
+    updated: "Hier",
+  },
+  {
+    id: "TF-104",
+    title: "Préparer la documentation",
+    project: "TaskFlow",
+    status: "Terminé",
+    priority: "Basse",
+    assignee: "Reda",
+    description: "Documenter les fonctionnalités principales.",
+    feature: "Documentation",
+    updated: "Hier",
+  },
+  {
+    id: "TF-105",
+    title: "Créer la page équipe",
+    project: "TaskFlow",
+    status: "À faire",
+    priority: "Moyenne",
+    assignee: "Sarah",
+    description: "Présenter les membres et leurs rôles.",
+    feature: "Équipe",
+    updated: "Cette semaine",
+  },
+];
+
+export const INITIAL_FEATURES = [
+  {
+    name: "Authentification",
+    description: "Connexion et gestion des comptes.",
+    status: "À faire",
+  },
+  {
+    name: "Dashboard",
+    description: "Vue d'ensemble du projet.",
+    status: "En cours",
+  },
+  {
+    name: "Gestion des tickets",
+    description: "Créer et organiser les tickets.",
+    status: "En test",
+  },
+  {
+    name: "Documentation",
+    description: "Guides et documentation technique.",
+    status: "Terminé",
+  },
+];
