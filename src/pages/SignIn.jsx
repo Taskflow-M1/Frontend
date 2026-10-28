@@ -1,6 +1,6 @@
 import butterfly from "../assets/butterfly.png";
-import { useState } from "react";
-import { apiRequest } from "../api/client";
+import { useRef, useState } from "react";
+import { apiRequest, saveSession } from "../api/client";
 import "./SignIn.css";
 
 function SignIn({ setPage }) {
@@ -8,16 +8,18 @@ function SignIn({ setPage }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const submitting = useRef(false);
   async function handleSubmit(event) {
     event.preventDefault();
+    if (submitting.current) return;
+    submitting.current = true;
     setError(""); setBusy(true);
     try {
       const result = await apiRequest("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
-      localStorage.setItem("token", result.token);
-      localStorage.setItem("user", JSON.stringify(result.user));
+      saveSession(result);
       setPage("Dashboard");
     } catch (err) { setError(err.message); }
-    finally { setBusy(false); }
+    finally { submitting.current = false; setBusy(false); }
   }
 
   return (
@@ -67,7 +69,7 @@ function SignIn({ setPage }) {
                 id="signin-email"
                 type="email"
                 placeholder="exemple@email.com"
-                required value={email} onChange={(e) => setEmail(e.target.value)}
+                required maxLength={254} autoComplete="email" readOnly={busy} value={email} onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
@@ -78,7 +80,7 @@ function SignIn({ setPage }) {
                 id="signin-password"
                 type="password"
                 placeholder="Entrez votre mot de passe"
-                required value={password} onChange={(e) => setPassword(e.target.value)}
+                required maxLength={128} autoComplete="current-password" readOnly={busy} value={password} onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 

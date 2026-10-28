@@ -1,0 +1,27 @@
+.ticket-fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.ticket-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 12px; margin-bottom: 10px; }
+.ticket-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 14px 0; }
+.ticket-open { background: transparent; border: 0; padding: 0; color: inherit; text-align: left; cursor: pointer; font: inherit; max-width: 100%; overflow-wrap: anywhere; }
+.ticket-open:hover strong, .ticket-open:hover h3 { color: #b23982; }
+.ticket-open strong { display: block; white-space: normal; min-width: 140px; }
+.ticket-kanban { margin-top: 20px; }
+.ticket-kanban .ticket-description { max-height: 64px; overflow: hidden; overflow-wrap: anywhere; }
+.ticket-kanban .ticket-meta { flex-wrap: wrap; }
+.ticket-kanban .ticket-meta .avatar { margin-left: 0; }
+.ticket-kanban select { width: 100%; margin-top: 12px; border: 1px solid #e8e2ef; border-radius: 7px; padding: 8px; background: white; font: inherit; color: inherit; }
+.ticket-description-full, .ticket-comment p { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; font-size: 13px; }
+.ticket-comment-author { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ticket-comment-author small { color: #777084; font-size: 11px; }
+.ticket-comments { margin-top: 22px; }
+.ticket-comment { border-top: 1px solid #ece7f0; padding: 16px 0 4px; }
+.ticket-comment strong { font-size: 12px; }
+.ticket-comment .ticket-actions { margin: 8px 0; }
+.ticket-discussion, .ticket-history { margin-top: 26px; border-top: 1px solid #ece7f0; padding-top: 12px; }
+.ticket-discussion h3, .ticket-history h3 { font-size: 15px; }
+.ticket-history ol { padding-left: 18px; }
+.ticket-history li { margin: 14px 0; font-size: 12px; line-height: 1.6; }
+.ticket-history li span { display: block; color: #777084; font-size: 11px; }
+.ticket-pagination { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 20px; font-size: 12px; }
+.ticket-kanban .ticket-card h3 { margin-top: 8px; }
+.tickets-panel .table-wrap td { white-space: normal; }
+@media (max-width: 600px) { .ticket-filters { grid-template-columns: 1fr 1fr; } .ticket-pagination { justify-content: center; } }

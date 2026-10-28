@@ -1,0 +1,17 @@
+.account-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.account-grid h2 { margin-top: 0; }
+.account-description { color: #817a94; font-size: 13px; line-height: 1.7; margin-bottom: 24px; }
+.account-avatar-editor { display: flex; align-items: center; gap: 18px; margin-bottom: 24px; }
+.account-avatar-editor > .avatar { flex-shrink: 0; width: 88px; height: 88px; border-radius: 24px; font-size: 30px; object-fit: cover; }
+.account-avatar-editor p { color: #817a94; font-size: 12px; line-height: 1.6; }
+.account-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.account-success { color: #287450; background: #eaf8f1; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.6; }
+.account-task-list { display: flex; flex-direction: column; gap: 14px; }
+.account-task-row { display: flex; align-items: center; gap: 20px; padding: 18px 0; border-top: 1px solid var(--border, #efedf4); }
+.account-task-content { flex: 1; min-width: 0; }
+.account-task-content h3 { margin: 0 0 8px; font-size: 15px; overflow-wrap: anywhere; }
+.account-task-content p { color: #817a94; line-height: 1.6; font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.account-task-content small { color: #817a94; }
+.account-task-row > .form-field { max-width: 200px; margin: 0; }
+@media (max-width: 1050px) { .account-grid { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .account-task-row { align-items: flex-start; flex-direction: column; } .account-task-row > .form-field { max-width: none; width: 100%; } .account-avatar-editor { align-items: flex-start; flex-wrap: wrap; } }
