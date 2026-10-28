@@ -1,390 +1,148 @@
-
-import { useEffect, useMemo, useState } from "react";
+/* oxlint-disable react/set-state-in-effect -- These effects synchronize request loading and session state with the API. */
+import { displayName } from "./workspace/utils";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
+import "./workspace/workspace.css";
 import butterfly from "./assets/butterfly.png";
-
 import Home from "./pages/Home";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
-import TeamList from "./pages/TeamList";
-import TeamForm from "./pages/TeamForm";
-import MemberList from "./pages/MemberList";
-import AddMemberForm from "./pages/AddMemberForm";
-import Profile from "./pages/Profile";
-import Settings from "./pages/Settings";
+import { apiRequest, clearSession } from "./api/client";
+import { Alert, Avatar, Empty } from "./workspace/ui";
+import { TeamsPage, ProjectsPage, FeaturesPage } from "./workspace/Management";
+import { ProfilePage, TasksPage } from "./workspace/Account";
+import { TicketsPage, TicketEditor, TicketDetails } from "./workspace/Tickets";
+import { WorkspaceDashboard } from "./workspace/Dashboard";
 
-import Dashboard from "./pages/Dashboard";
-import Kanban from "./pages/Kanban";
-import TicketList from "./pages/TicketList";
-import Features from "./pages/Features";
-import Projects from "./pages/Projects";
-import Team from "./pages/Team";
-import TicketFormModal from "./pages/TicketFormModal";
-import TicketDetailsModal from "./pages/TicketDetailsModal";
-
-import { NAV_ITEMS } from "./pages/constants";
-import { apiRequest } from "./api/client";
-import { API_STATUS, API_PRIORITY, UI_STATUS, UI_PRIORITY } from "./pages/constants";
-import { useCallback } from "react";
-
-function Butterfly({ small = false }) {
-  return (
-    <img
-      src={butterfly}
-      alt="Logo TaskFlow"
-      className={`butterfly-logo ${small ? "small" : ""}`}
-    />
-  );
+const ROUTES = { Dashboard: "dashboard", Kanban: "kanban", "Mes tickets": "tickets", Features: "features", Projets: "projects", Équipe: "teams", Profile: "profile", Tasks: "tasks", Home: "home", SignIn: "login", SignUp: "register", Help: "help" };
+const MENU = [["Dashboard", "⌂", "Tableau de bord"], ["Kanban", "▦", "Kanban"], ["Mes tickets", "☷", "Tickets"], ["Features", "◇", "Features"], ["Projets", "▣", "Projets"], ["Équipe", "♧", "Équipes et membres"], ["Tasks", "✓", "Mes tâches"], ["Profile", "◉", "Mon profil"], ["Help", "?", "Aide"]];
+const PUBLIC = ["Home", "SignIn", "SignUp"];
+const COPYRIGHT_YEAR = new Date().getFullYear();
+function readPage() { const route = window.location.hash.slice(2).split("?")[0]; return Object.keys(ROUTES).find((key) => ROUTES[key] === route) || (localStorage.getItem("token") ? "Dashboard" : "Home"); }
+function usePage() {
+  const [page, update] = useState(readPage);
+  useEffect(() => { const change = () => update(readPage()); window.addEventListener("hashchange", change); return () => window.removeEventListener("hashchange", change); }, []);
+  const navigate = useCallback((next) => { window.location.hash = `/${ROUTES[next] || "dashboard"}`; update(next); }, []);
+  return [page, navigate];
 }
 
 export default function App() {
-  const [page, setPage] = useState(localStorage.getItem("token") ? "Dashboard" : "Home");
-  const [tickets, setTickets] = useState([]);
-  const [features, setFeatures] = useState([]);
-  const [members, setMembers] = useState([]);
-  const [project, setProject] = useState(null);
-  const [user, setUser] = useState(() => { try { return JSON.parse(localStorage.getItem("user")); } catch { return null; } });
-  const [apiError, setApiError] = useState("");
+  const [page, navigate] = usePage();
+  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(Boolean(token));
+  const [authError, setAuthError] = useState("");
+  const [authRetry, setAuthRetry] = useState(0);
+  const [teams, setTeams] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [teamId, setTeamId] = useState("");
+  const [projectId, setProjectId] = useState("");
+  const [scope, setScope] = useState({ key: "", members: [], features: [] });
   const [loading, setLoading] = useState(false);
+  const [scopeLoading, setScopeLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [scopeError, setScopeError] = useState("");
+  const [revision, setRevision] = useState(0);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("Tous les statuts");
-  const [priorityFilter, setPriorityFilter] = useState("Toutes les priorités");
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editingTicket, setEditingTicket] = useState(null);
-  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [featureId, setFeatureId] = useState("");
+  const [createTicket, setCreateTicket] = useState(false);
+  const [detail, setDetail] = useState(null);
+  const workspaceSequence = useRef(0);
+  const userId = user?.id;
+  const activeTeam = teams.find((item) => item.id === teamId) || teams[0] || null;
+  const teamProjects = projects.filter((item) => item.teamId === activeTeam?.id);
+  const project = teamProjects.find((item) => item.id === projectId) || teamProjects[0] || null;
+  const scopeKey = `${activeTeam?.id || ""}:${project?.id || ""}`;
+  const activeTeamKey = activeTeam?.id;
+  const activeProjectKey = project?.id;
+  const members = scope.key === scopeKey ? scope.members : [];
+  const features = scope.key === scopeKey ? scope.features : [];
 
-  const emptyForm = {
-    title: "",
-    project: "",
-    status: "À faire",
-    priority: "Moyenne",
-    type: "task",
-    dueDate: "",
-    assignee: "",
-    description: "",
-    feature: "",
-  };
-
-  const [form, setForm] = useState(emptyForm);
-
-  const normalizedTickets = useMemo(() => tickets.map((ticket) => ({
-    ...ticket,
-    apiId: ticket.id,
-    id: ticket.key || ticket.id,
-    status: UI_STATUS[ticket.status] || ticket.status,
-    priority: UI_PRIORITY[ticket.priority] || ticket.priority,
-    project: project?.name || "Projet",
-    feature: features.find((feature) => feature.id === ticket.featureId)?.title || "Sans feature",
-    assignee: ticket.assignee ? `${ticket.assignee.firstName} ${ticket.assignee.lastName}`.trim() || ticket.assignee.email : "Non assigné",
-    updated: ticket.updatedAt ? new Date(ticket.updatedAt).toLocaleDateString("fr-FR") : "",
-  })), [tickets, project, features]);
-
-  const refreshWorkspace = useCallback(async () => {
-    if (!localStorage.getItem("token")) return;
-    setLoading(true); setApiError("");
-    try {
-      let teams = (await apiRequest("/teams")).items;
-      let activeTeam = teams[0];
-      if (!activeTeam) activeTeam = await apiRequest("/teams", { method: "POST", body: JSON.stringify({ name: "Mon équipe" }) });
-      let projects = (await apiRequest(`/projects?teamId=${activeTeam.id}`)).items;
-      let activeProject = projects[0];
-      if (!activeProject) activeProject = await apiRequest("/projects", { method: "POST", body: JSON.stringify({ teamId: activeTeam.id, name: "Mon projet", key: "TASK" }) });
-      const [ticketResult, featureResult, memberResult] = await Promise.all([
-        apiRequest(`/projects/${activeProject.id}/tickets?limit=100`),
-        apiRequest(`/projects/${activeProject.id}/features`),
-        apiRequest(`/teams/${activeTeam.id}/members`),
-      ]);
-      setProject(activeProject); setTickets(ticketResult.items); setFeatures(featureResult.items); setMembers(memberResult.items);
-    } catch (error) {
-      setApiError(error.message);
-      if (error.status === 401) { localStorage.removeItem("token"); localStorage.removeItem("user"); setUser(null); setPage("SignIn"); }
-    } finally { setLoading(false); }
+  useEffect(() => {
+    const changed = () => { const nextToken = localStorage.getItem("token"); workspaceSequence.current += 1; setUser(null); setToken(nextToken); setAuthLoading(Boolean(nextToken)); setAuthRetry((value) => value + 1); };
+    const storage = (event) => { if (event.key === "token" || event.key === null) changed(); };
+    window.addEventListener("taskflow:session", changed); window.addEventListener("storage", storage);
+    return () => { window.removeEventListener("taskflow:session", changed); window.removeEventListener("storage", storage); };
   }, []);
-
-  useEffect(() => { refreshWorkspace(); }, [refreshWorkspace]);
-
-  const filteredTickets = useMemo(() => {
-    const query = search.toLowerCase();
-
-    return normalizedTickets.filter((ticket) => {
-      const matchesSearch = [
-        ticket.title,
-        ticket.id,
-        ticket.assignee,
-        ticket.project,
-        ticket.feature,
-      ].some((value) => value.toLowerCase().includes(query));
-
-      const matchesStatus =
-        statusFilter === "Tous les statuts" ||
-        ticket.status === statusFilter;
-
-      const matchesPriority =
-        priorityFilter === "Toutes les priorités" ||
-        ticket.priority === priorityFilter;
-
-      return matchesSearch && matchesStatus && matchesPriority;
-    });
-  }, [normalizedTickets, search, statusFilter, priorityFilter]);
-
-  function openCreate() {
-    setEditingTicket(null);
-    setForm({ ...emptyForm });
-    setModalOpen(true);
-  }
-
-  function openEdit(ticket) {
-    setEditingTicket(ticket);
-    setForm({ title: ticket.title, description: ticket.description || "", status: ticket.status, priority: ticket.priority, type: ticket.type || "task", dueDate: ticket.dueDate || "", assignee: ticket.assignedTo || "", feature: ticket.feature });
-    setSelectedTicket(null);
-    setModalOpen(true);
-  }
-
-  async function saveTicket(event) {
-    event.preventDefault();
-    if (!form.title.trim() || !project) return;
+  useEffect(() => {
+    const controller = new AbortController();
+    setAuthError(""); setUser(null);
+    setTeams([]); setProjects([]); setScope({ key: "", members: [], features: [] }); setDetail(null); setCreateTicket(false);
+    if (!token) { setAuthLoading(false); return; }
+    setAuthLoading(true);
+    apiRequest("/users/me", { signal: controller.signal }).then((profile) => {
+      if (controller.signal.aborted) return;
+      setUser(profile);
+      setTeamId(localStorage.getItem(`taskflow:team:${profile.id}`) || "");
+      setProjectId(localStorage.getItem(`taskflow:project:${profile.id}`) || "");
+    }).catch((err) => { if (!controller.signal.aborted) setAuthError(err.message); }).finally(() => { if (!controller.signal.aborted) setAuthLoading(false); });
+    return () => controller.abort();
+  }, [token, authRetry]);
+  const loadWorkspace = useCallback(async (signal) => {
+    if (!userId || !token || token !== localStorage.getItem("token")) return false;
+    const sequence = ++workspaceSequence.current;
+    setLoading(true); setError("");
     try {
-      const payload = { title: form.title, description: form.description, status: API_STATUS[form.status], priority: API_PRIORITY[form.priority], type: form.type, dueDate: form.dueDate || null, featureId: features.find((item) => item.title === form.feature)?.id || null, assignedTo: form.assignee || null };
-      if (editingTicket) await apiRequest(`/tickets/${editingTicket.apiId}`, { method: "PATCH", body: JSON.stringify(payload) });
-      else await apiRequest("/tickets", { method: "POST", body: JSON.stringify({ ...payload, projectId: project.id }) });
-      setModalOpen(false); await refreshWorkspace();
-    } catch (error) { setApiError(error.message); }
+      const [teamData, projectData] = await Promise.all([apiRequest("/teams", { signal }), apiRequest("/projects", { signal })]);
+      if (signal?.aborted || sequence !== workspaceSequence.current || token !== localStorage.getItem("token")) return false;
+      setTeams(teamData.items); setProjects(projectData.items);
+      return true;
+    } catch (err) { if (!signal?.aborted && sequence === workspaceSequence.current && token === localStorage.getItem("token")) setError(err.message); return false; }
+    finally { if (!signal?.aborted && sequence === workspaceSequence.current) setLoading(false); }
+  }, [userId, token]);
+  useEffect(() => { const controller = new AbortController(); loadWorkspace(controller.signal); return () => controller.abort(); }, [loadWorkspace]);
+  const refresh = useCallback(async () => { if (await loadWorkspace()) setRevision((value) => value + 1); }, [loadWorkspace]);
+  useEffect(() => {
+    const controller = new AbortController();
+    setScopeError(""); setScopeLoading(true);
+    const requests = [activeTeamKey ? apiRequest(`/teams/${activeTeamKey}/members`, { signal: controller.signal }) : Promise.resolve({ items: [] }), activeProjectKey ? apiRequest(`/projects/${activeProjectKey}/features`, { signal: controller.signal }) : Promise.resolve({ items: [] })];
+    Promise.all(requests).then(([memberData, featureData]) => { if (!controller.signal.aborted) setScope({ key: scopeKey, members: memberData.items, features: featureData.items }); }).catch((err) => { if (!controller.signal.aborted) setScopeError(err.message); }).finally(() => { if (!controller.signal.aborted) setScopeLoading(false); });
+    return () => controller.abort();
+  }, [activeTeamKey, activeProjectKey, scopeKey, revision]);
+  useEffect(() => { setFeatureId(""); setDetail(null); setCreateTicket(false); }, [project?.id]);
+  const selectTeam = (id) => { setTeamId(id); setProjectId(""); if (user) { localStorage.setItem(`taskflow:team:${user.id}`, id); localStorage.removeItem(`taskflow:project:${user.id}`); } };
+  const selectProject = (id, teamHint) => { const nextTeamId = teamHint || projects.find((item) => item.id === id)?.teamId; if (nextTeamId) selectTeam(nextTeamId); setProjectId(id); if (user) localStorage.setItem(`taskflow:project:${user.id}`, id); };
+  const go = (next) => { setSearch(""); setFeatureId(""); navigate(next); };
+
+  if (PUBLIC.includes(page)) {
+    const Page = { Home, SignIn, SignUp }[page];
+    return <Page setPage={navigate} />;
   }
+  if (!token) return <SignIn setPage={navigate} />;
+  if (authLoading) return <main className="session-state" aria-busy="true">Chargement de votre compte…</main>;
+  if (!user) return <main className="session-state"><Alert>{authError || "Impossible de charger votre compte."}</Alert><button className="primary-button" onClick={() => setAuthRetry((value) => value + 1)}>Réessayer</button><button className="text-button" onClick={() => { clearSession(); navigate("SignIn"); }}>Se reconnecter</button></main>;
+  const title = MENU.find(([id]) => id === page)?.[2] || "Page introuvable";
+  return <div className="app-shell">
+    <aside className="sidebar">
+      <a className="brand" href="#/dashboard"><img className="butterfly-logo" src={butterfly} alt="" /><div><strong>TaskFlow</strong><span>WORKSPACE</span></div></a>
+      <p className="nav-label">MON ESPACE</p>
+      <nav className="main-nav" aria-label="Navigation principale">{MENU.map(([id, icon, label]) => <a key={id} className={`nav-item ${page === id ? "active" : ""}`} href={`#/${ROUTES[id]}`} aria-label={label} title={label} aria-current={page === id ? "page" : undefined} onClick={() => { setSearch(""); setFeatureId(""); }}><span className="nav-icon" aria-hidden="true">{icon}</span><span className="nav-text">{label}</span></a>)}</nav>
+      <div className="sidebar-bottom"><button className="sidebar-profile profile-link" onClick={() => go("Profile")}><Avatar user={user} /><div><strong>{displayName(user)}</strong><span>{user.email}</span></div></button></div>
+    </aside>
+    <main className="main-area">
+      <header className="topbar"><div className="breadcrumbs"><span>Mon espace</span><span>/</span><strong>{title}</strong></div><div className="topbar-actions"><button className="secondary-button" onClick={refresh} disabled={loading}>Actualiser</button><button className="text-button" onClick={() => { clearSession(); navigate("Home"); }}>Se déconnecter</button></div></header>
+      <div className="page-content">
+        <div className="page-heading"><div><p className="eyebrow">TASKFLOW / {activeTeam?.name || "MON ESPACE"}</p><h1>{title}</h1></div></div>
+        <div className="scope-controls"><label>Équipe<select value={activeTeam?.id || ""} onChange={(event) => selectTeam(event.target.value)} disabled={!teams.length}><option value="" disabled>Choisir une équipe</option>{teams.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label><label>Projet<select value={project?.id || ""} onChange={(event) => selectProject(event.target.value)} disabled={!teamProjects.length}><option value="" disabled>Choisir un projet</option>{teamProjects.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label></div>
+        <Alert>{error}</Alert>{error && <button className="secondary-button" onClick={refresh}>Recharger l’espace</button>}
+        {loading && <p role="status">Chargement de l’espace…</p>}
+        <Alert>{scopeError}</Alert>{scopeError && <button className="secondary-button" onClick={() => setRevision((value) => value + 1)}>Recharger le projet</button>}
+        {page === "Dashboard" && <WorkspaceDashboard key={`${user.id}:${project?.id || activeTeam?.id || "all"}`} user={user} project={project} team={activeTeam} revision={revision} onCreate={() => setCreateTicket(true)} onNavigate={go} onTicket={(ticket) => setDetail(ticket.id)} />}
+        {["Mes tickets", "Kanban"].includes(page) && <>{project ? scope.key !== scopeKey ? <p role="status">{scopeLoading ? "Chargement du projet…" : "Les données du projet ne sont pas disponibles. Réessayez le chargement."}</p> : <TicketsPage key={`${project.id}:${page}`} project={project} features={features} members={members} user={user} onChanged={refresh} featureId={featureId} onFeatureChange={setFeatureId} mode={page === "Kanban" ? "kanban" : "list"} search={search} /> : <Empty>Créez ou sélectionnez un projet pour gérer ses tickets. <button className="primary-button" onClick={() => go(teams.length ? "Projets" : "Équipe")}>Configurer mon espace</button></Empty>}</>}
+        {page === "Équipe" && <TeamsPage teams={teams} activeTeamId={activeTeam?.id || ""} onTeamChange={selectTeam} onChanged={refresh} user={user} />}
+        {page === "Projets" && <ProjectsPage projects={projects} teams={teams} activeTeamId={activeTeam?.id || ""} onProjectChange={(id, teamHint) => { selectProject(id, teamHint); navigate("Dashboard"); }} onChanged={refresh} />}
+        {page === "Features" && (scope.key !== scopeKey ? <p role="status">{scopeLoading ? "Chargement des features…" : "Les features ne sont pas disponibles. Réessayez le chargement."}</p> : <FeaturesPage key={project?.id || "none"} project={project} features={features} onChanged={refresh} onViewTickets={(id) => { setFeatureId(id); setSearch(""); navigate("Mes tickets"); }} />)}
+        {page === "Profile" && <ProfilePage key={user.id} user={user} onUserChanged={(updated) => { if (updated.id === userId && localStorage.getItem("token") === token) setUser(updated); }} />}
+        {page === "Tasks" && <TasksPage revision={revision} />}
+        {page === "Help" && <Help onNavigate={go} />}
+        <footer className="app-footer"><span><img className="butterfly-logo small" src={butterfly} alt="" />TaskFlow</span><span>Organisez votre travail, ensemble.</span><span>© {COPYRIGHT_YEAR} TaskFlow</span></footer>
+      </div>
+    </main>
+    {createTicket && project && <TicketEditor project={project} features={features} members={members} user={user} onClose={() => setCreateTicket(false)} onSaved={async () => { setCreateTicket(false); await refresh(); }} />}
+    {detail && project && <TicketDetails ticketId={detail} project={project} features={features} members={members} user={user} onClose={() => setDetail(null)} onChanged={refresh} />}
+  </div>;
+}
 
-  async function moveTicket(ticket, status) {
-    try {
-      await apiRequest(`/tickets/${ticket.apiId || ticket.id}/status`, { method: "PATCH", body: JSON.stringify({ status: API_STATUS[status] }) });
-      await refreshWorkspace();
-      setSelectedTicket((current) => current?.id === ticket.id ? { ...current, status } : current);
-    } catch (error) { setApiError(error.message); }
-  }
-
-  function resetFilters() {
-    setSearch("");
-    setStatusFilter("Tous les statuts");
-    setPriorityFilter("Toutes les priorités");
-  }
-
-  const amelPages = {
-    Home,
-    SignIn,
-    SignUp,
-    TeamList,
-    TeamForm,
-    MemberList,
-    AddMemberForm,
-    Profile,
-    Settings,
-  };
-
-  if (amelPages[page]) {
-    const PageComponent = amelPages[page];
-    return <PageComponent setPage={setPage} />;
-  }
-
-  if (!localStorage.getItem("token")) return <Home setPage={setPage} />;
-
-  const descriptions = {
-    Dashboard: "Retrouve les informations importantes de ton espace.",
-    Kanban: "Organise le travail en faisant avancer les tickets.",
-    "Mes tickets": "Consulte, filtre et gère les tickets du projet.",
-    Features: "Regroupe les tickets par fonctionnalité.",
-    Projets: "Retrouve les espaces de travail de ton équipe.",
-    Équipe: "Les personnes qui construisent TaskFlow avec toi.",
-  };
-
-  return (
-    <div className="app-shell">
-      <aside className="sidebar">
-        <div className="brand">
-          <Butterfly />
-          <div>
-            <strong>TaskFlow</strong>
-            <span>WORKSPACE</span>
-          </div>
-        </div>
-
-        <div className="workspace-switcher">
-          <div className="workspace-avatar">T</div>
-          <div>
-            <strong>Mon espace</strong>
-            <span>Projet étudiant</span>
-          </div>
-          <span className="chevron">⌄</span>
-        </div>
-
-        <p className="nav-label">MENU PRINCIPAL</p>
-
-        <nav className="main-nav">
-          {NAV_ITEMS.map((item) => (
-            <button
-              key={item.id}
-              className={`nav-item ${page === item.id ? "active" : ""}`}
-              onClick={() => {
-                setPage(item.id);
-                resetFilters();
-              }}
-            >
-              <span className="nav-icon">{item.icon}</span>
-              {item.id}
-              {item.id === "Mes tickets" && (
-                <span className="nav-count">{normalizedTickets.length}</span>
-              )}
-            </button>
-          ))}
-        </nav>
-
-        <div className="sidebar-bottom">
-          <div className="help-card">
-            <div className="help-sparkle">✦</div>
-            <strong>Besoin d'aide ?</strong>
-            <p>Retrouve les conseils pour mieux organiser ton travail.</p>
-            <button
-              onClick={() =>
-                window.alert("Centre d'aide bientôt disponible.")
-              }
-            >
-              Centre d'aide <span>→</span>
-            </button>
-          </div>
-
-          <div className="sidebar-profile">
-            <div className="avatar profile-avatar">{user?.firstName?.[0] || "U"}</div>
-            <div>
-              <strong>{[user?.firstName, user?.lastName].filter(Boolean).join(" ") || "Mon compte"}</strong>
-              <span>{user?.email || ""}</span>
-            </div>
-          </div>
-
-        </div>
-      </aside>
-
-      <main className="main-area">
-        <header className="topbar">
-          <div className="breadcrumbs">
-            <span>Workspace</span>
-            <span>/</span>
-            <strong>{page}</strong>
-          </div>
-
-          <div className="topbar-actions">
-            <label className="global-search">
-              <span>⌕</span>
-              <input
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Rechercher..."
-              />
-            </label>
-            <button className="notification-button" title="Notifications">
-              ♧<i />
-            </button>
-            <button className="text-button" onClick={() => { localStorage.removeItem("token"); localStorage.removeItem("user"); setUser(null); setTickets([]); setPage("Home"); }}>Se déconnecter</button>
-          </div>
-        </header>
-
-        <div className="page-content">
-          {apiError && <div role="alert" className="api-notice">{apiError} <button onClick={refreshWorkspace}>Réessayer</button></div>}
-          {loading && <div className="api-notice">Chargement des données…</div>}
-          <div className="page-heading">
-            <div>
-              <p className="eyebrow">TASKFLOW / WORKSPACE</p>
-              <h1>{page}</h1>
-              <p>{descriptions[page]}</p>
-            </div>
-
-            {page === "Kanban" && (
-              <button className="primary-button" onClick={openCreate}>
-                ＋ Nouveau ticket
-              </button>
-            )}
-          </div>
-
-          {page === "Dashboard" && (
-            <Dashboard
-              tickets={normalizedTickets}
-              features={features.map((feature) => ({ ...feature, name: feature.title, status: "En cours" }))}
-              onCreate={openCreate}
-              onSelect={setSelectedTicket}
-              onNavigate={(nextPage) => setPage(nextPage)}
-              Butterfly={Butterfly}
-            />
-          )}
-
-          {page === "Kanban" && (
-            <Kanban
-              tickets={filteredTickets}
-              onSelect={setSelectedTicket}
-              onEdit={openEdit}
-              onCreate={openCreate}
-            />
-          )}
-
-          {page === "Mes tickets" && (
-            <TicketList
-              tickets={filteredTickets}
-              search={search}
-              setSearch={setSearch}
-              statusFilter={statusFilter}
-              setStatusFilter={setStatusFilter}
-              priorityFilter={priorityFilter}
-              setPriorityFilter={setPriorityFilter}
-              onCreate={openCreate}
-              onSelect={setSelectedTicket}
-              onEdit={openEdit}
-              onResetFilters={resetFilters}
-            />
-          )}
-
-          {page === "Features" && (
-            <Features
-              features={features.map((feature) => ({ ...feature, name: feature.title, status: "En cours" }))}
-              tickets={normalizedTickets}
-              onNavigate={(featureName) => {
-                setPage("Mes tickets");
-                setSearch(featureName);
-              }}
-            />
-          )}
-
-          {page === "Projets" && (
-            <Projects tickets={normalizedTickets} Butterfly={Butterfly} project={project} />
-          )}
-
-          {page === "Équipe" && <Team members={members} />}
-
-          <footer className="app-footer">
-            <span>
-              <Butterfly small /> TaskFlow
-            </span>
-            <span>
-              Organise ton travail, simplement. <b>♥</b>
-            </span>
-            <span>© 2026 TaskFlow</span>
-          </footer>
-        </div>
-      </main>
-
-      {modalOpen && (
-        <TicketFormModal
-          editingTicket={editingTicket}
-          form={form}
-          setForm={setForm}
-          features={features.map((feature) => ({ ...feature, name: feature.title }))}
-          members={members.map((member) => member.user)}
-          onClose={() => setModalOpen(false)}
-          onSave={saveTicket}
-        />
-      )}
-
-      {selectedTicket && (
-        <TicketDetailsModal
-          ticket={selectedTicket}
-          onClose={() => setSelectedTicket(null)}
-          onMove={moveTicket}
-          onEdit={openEdit}
-        />
-      )}
-    </div>
-  );
+function Help({ onNavigate }) {
+  return <section className="panel help-page"><h2>Bien démarrer</h2><ol><li>Créez votre équipe, puis ajoutez vos collaborateurs par leur adresse e-mail. Ils doivent déjà avoir un compte TaskFlow.</li><li>Créez un projet avec une clé courte qui identifiera ses tickets.</li><li>Regroupez le travail dans des features et créez vos tickets depuis le tableau de bord, la liste ou le Kanban.</li><li>Assignez les tickets, échangez dans les commentaires et suivez les changements dans l’historique.</li></ol><h3>Les rôles</h3><p>Les administrateurs gèrent l’équipe et ses membres. Les chefs de projet gèrent les projets et les features. Les développeurs font avancer leurs tickets jusqu’à la recette ; les testeurs peuvent valider la recette et rouvrir les tickets. Les permissions sont contrôlées par le serveur.</p><h3>Votre espace personnel</h3><p>Votre profil permet de changer votre photo et votre mot de passe. Vos tâches personnelles restent privées.</p><div className="management-actions"><button className="primary-button" onClick={() => onNavigate("Équipe")}>Gérer mes équipes</button><button className="secondary-button" onClick={() => onNavigate("Profile")}>Mon profil</button></div></section>;
 }

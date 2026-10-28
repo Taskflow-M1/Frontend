@@ -1,0 +1,37 @@
+.management-stack { display: grid; gap: 22px; }
+.management-fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.management-stack > .section-heading { margin-bottom: 0; }
+.management-team.selected { border-color: #d263ab; box-shadow: 0 0 0 1px #d263ab; }
+.management-team h3 { margin-top: 0; }
+.management-team h3, .management-team p, .management-stack .project-card h2, .management-stack .project-card p, .management-stack .feature-card h3, .management-stack .feature-card p { overflow-wrap: anywhere; }
+.management-stack .feature-card > p, .management-team > p:first-of-type, .management-stack .project-card > p:first-of-type { white-space: pre-wrap; }
+.management-team p, .management-invite p { color: #766d84; font-size: 13px; line-height: 1.6; }
+.management-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.danger-text { color: #b32e4d; }
+.management-member-list { display: grid; }
+.management-member-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 14px 0; border-bottom: 1px solid var(--border, #eee); font-size: 13px; }
+.management-member-info { display: grid; gap: 5px; min-width: 140px; flex: 1; overflow-wrap: anywhere; }
+.management-member-info span { color: #766d84; font-size: 12px; }
+.management-role select { max-width: 180px; border: 1px solid #e9e5f0; border-radius: 8px; padding: 9px; background: white; color: #52465f; }
+.management-invite { margin-top: 24px; }
+.management-invite h3 { font-size: 15px; }
+.management-directory { margin-bottom: 20px; }
+.management-directory-results { list-style: none; margin: 0; padding: 0; max-height: 280px; overflow-y: auto; border: 1px solid #e9e5f0; border-radius: 9px; }
+.management-directory-account { width: 100%; display: flex; align-items: center; gap: 12px; border: none; border-bottom: 1px solid #eee; padding: 12px; text-align: left; color: inherit; background: white; }
+.management-directory-account:hover { background: #fff0f7; }
+.management-directory-account > span:nth-child(2) { display: grid; gap: 5px; flex: 1; overflow-wrap: anywhere; min-width: 0; font-size: 13px; }
+.management-directory-account small { color: #766d84; font-size: 12px; }
+.management-activity { list-style: none; padding: 0; margin: 0; display: grid; }
+.management-activity li { display: grid; gap: 7px; padding: 14px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+.management-activity small { color: #766d84; }
+.management-progress { width: 100%; height: 9px; border: none; accent-color: #d44b9c; }
+.management-stack .feature-card h3 { margin: 0; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+@media (max-width: 600px) {
+  .management-stack > .section-heading, .management-stack .panel > .section-heading { align-items: flex-start; flex-wrap: wrap; }
+  .management-actions { gap: 8px; }
+  .management-member-row { align-items: flex-start; }
+  .management-member-info { min-width: 110px; }
+  .management-role { width: 100%; }
+  .management-role select { width: 100%; max-width: none; }
+}
