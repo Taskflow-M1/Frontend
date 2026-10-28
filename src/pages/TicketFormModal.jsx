@@ -1,11 +1,12 @@
 
-import { MEMBERS, PRIORITIES, STATUSES } from "./constants";
+import { PRIORITIES, STATUSES } from "./constants";
 
 export default function TicketFormModal({
   editingTicket,
   form,
   setForm,
   features,
+  members = [],
   onClose,
   onSave,
 }) {
@@ -85,6 +86,18 @@ export default function TicketFormModal({
             </label>
 
             <label className="form-field">
+              Type
+              <select value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value })}>
+                <option value="task">Tâche</option><option value="bug">Anomalie</option><option value="story">User story</option><option value="improvement">Amélioration</option>
+              </select>
+            </label>
+
+            <label className="form-field">
+              Échéance
+              <input type="date" value={form.dueDate || ""} onChange={(event) => setForm({ ...form, dueDate: event.target.value })} />
+            </label>
+
+            <label className="form-field">
               Assigné à
               <select
                 value={form.assignee}
@@ -92,8 +105,9 @@ export default function TicketFormModal({
                   setForm({ ...form, assignee: event.target.value })
                 }
               >
-                {MEMBERS.map((member) => (
-                  <option key={member}>{member}</option>
+                <option value="">Non assigné</option>
+                {members.map((member) => (
+                  <option key={member.id} value={member.id}>{[member.firstName, member.lastName].filter(Boolean).join(" ") || member.email}</option>
                 ))}
               </select>
             </label>
@@ -106,6 +120,7 @@ export default function TicketFormModal({
                   setForm({ ...form, feature: event.target.value })
                 }
               >
+                <option value="">Aucune feature</option>
                 {features.map((feature) => (
                   <option key={feature.name}>{feature.name}</option>
                 ))}

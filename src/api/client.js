@@ -1,5 +1,5 @@
 
-const API_URL = "http://localhost:3000/api";
+const API_URL = (import.meta.env.VITE_API_URL || "https://backend-production-76b88.up.railway.app/api").replace(/\/$/, "");
 
 export async function apiRequest(path, options = {}) {
   const token = localStorage.getItem("token");
@@ -20,9 +20,10 @@ export async function apiRequest(path, options = {}) {
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new Error(
-      data?.error?.message || `Erreur API : ${response.status}`
-    );
+    const error = new Error(data?.error?.message || `Erreur API : ${response.status}`);
+    error.code = data?.error?.code;
+    error.status = response.status;
+    throw error;
   }
 
   return data;

@@ -1,5 +1,5 @@
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import butterfly from "./assets/butterfly.png";
 
@@ -23,7 +23,9 @@ import TicketFormModal from "./pages/TicketFormModal";
 import TicketDetailsModal from "./pages/TicketDetailsModal";
 
 import { NAV_ITEMS } from "./pages/constants";
-import { INITIAL_TICKETS, INITIAL_FEATURES } from "./pages/tickets";
+import { apiRequest } from "./api/client";
+import { API_STATUS, API_PRIORITY, UI_STATUS, UI_PRIORITY } from "./pages/constants";
+import { useCallback } from "react";
 
 function Butterfly({ small = false }) {
   return (
@@ -36,9 +38,14 @@ function Butterfly({ small = false }) {
 }
 
 export default function App() {
-  const [page, setPage] = useState("Dashboard");
-  const [tickets, setTickets] = useState(INITIAL_TICKETS);
-  const [features] = useState(INITIAL_FEATURES);
+  const [page, setPage] = useState(localStorage.getItem("token") ? "Dashboard" : "Home");
+  const [tickets, setTickets] = useState([]);
+  const [features, setFeatures] = useState([]);
+  const [members, setMembers] = useState([]);
+  const [project, setProject] = useState(null);
+  const [user, setUser] = useState(() => { try { return JSON.parse(localStorage.getItem("user")); } catch { return null; } });
+  const [apiError, setApiError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("Tous les statuts");
   const [priorityFilter, setPriorityFilter] = useState("Toutes les priorités");
@@ -48,20 +55,58 @@ export default function App() {
 
   const emptyForm = {
     title: "",
-    project: "TaskFlow",
+    project: "",
     status: "À faire",
     priority: "Moyenne",
-    assignee: "Sarah",
+    type: "task",
+    dueDate: "",
+    assignee: "",
     description: "",
-    feature: "Dashboard",
+    feature: "",
   };
 
   const [form, setForm] = useState(emptyForm);
 
+  const normalizedTickets = useMemo(() => tickets.map((ticket) => ({
+    ...ticket,
+    apiId: ticket.id,
+    id: ticket.key || ticket.id,
+    status: UI_STATUS[ticket.status] || ticket.status,
+    priority: UI_PRIORITY[ticket.priority] || ticket.priority,
+    project: project?.name || "Projet",
+    feature: features.find((feature) => feature.id === ticket.featureId)?.title || "Sans feature",
+    assignee: ticket.assignee ? `${ticket.assignee.firstName} ${ticket.assignee.lastName}`.trim() || ticket.assignee.email : "Non assigné",
+    updated: ticket.updatedAt ? new Date(ticket.updatedAt).toLocaleDateString("fr-FR") : "",
+  })), [tickets, project, features]);
+
+  const refreshWorkspace = useCallback(async () => {
+    if (!localStorage.getItem("token")) return;
+    setLoading(true); setApiError("");
+    try {
+      let teams = (await apiRequest("/teams")).items;
+      let activeTeam = teams[0];
+      if (!activeTeam) activeTeam = await apiRequest("/teams", { method: "POST", body: JSON.stringify({ name: "Mon équipe" }) });
+      let projects = (await apiRequest(`/projects?teamId=${activeTeam.id}`)).items;
+      let activeProject = projects[0];
+      if (!activeProject) activeProject = await apiRequest("/projects", { method: "POST", body: JSON.stringify({ teamId: activeTeam.id, name: "Mon projet", key: "TASK" }) });
+      const [ticketResult, featureResult, memberResult] = await Promise.all([
+        apiRequest(`/projects/${activeProject.id}/tickets?limit=100`),
+        apiRequest(`/projects/${activeProject.id}/features`),
+        apiRequest(`/teams/${activeTeam.id}/members`),
+      ]);
+      setProject(activeProject); setTickets(ticketResult.items); setFeatures(featureResult.items); setMembers(memberResult.items);
+    } catch (error) {
+      setApiError(error.message);
+      if (error.status === 401) { localStorage.removeItem("token"); localStorage.removeItem("user"); setUser(null); setPage("SignIn"); }
+    } finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { refreshWorkspace(); }, [refreshWorkspace]);
+
   const filteredTickets = useMemo(() => {
     const query = search.toLowerCase();
 
-    return tickets.filter((ticket) => {
+    return normalizedTickets.filter((ticket) => {
       const matchesSearch = [
         ticket.title,
         ticket.id,
@@ -80,7 +125,7 @@ export default function App() {
 
       return matchesSearch && matchesStatus && matchesPriority;
     });
-  }, [tickets, search, statusFilter, priorityFilter]);
+  }, [normalizedTickets, search, statusFilter, priorityFilter]);
 
   function openCreate() {
     setEditingTicket(null);
@@ -90,54 +135,28 @@ export default function App() {
 
   function openEdit(ticket) {
     setEditingTicket(ticket);
-    setForm({ ...ticket });
+    setForm({ title: ticket.title, description: ticket.description || "", status: ticket.status, priority: ticket.priority, type: ticket.type || "task", dueDate: ticket.dueDate || "", assignee: ticket.assignedTo || "", feature: ticket.feature });
     setSelectedTicket(null);
     setModalOpen(true);
   }
 
-  function saveTicket(event) {
+  async function saveTicket(event) {
     event.preventDefault();
-    if (!form.title.trim()) return;
-
-    if (editingTicket) {
-      setTickets((current) =>
-        current.map((ticket) =>
-          ticket.id === editingTicket.id
-            ? { ...ticket, ...form, updated: "À l'instant" }
-            : ticket
-        )
-      );
-    } else {
-      const nextNumber =
-        Math.max(
-          100,
-          ...tickets.map((ticket) => Number(ticket.id.replace("TF-", "")))
-        ) + 1;
-
-      const newTicket = {
-        ...form,
-        id: `TF-${nextNumber}`,
-        updated: "À l'instant",
-      };
-
-      setTickets((current) => [newTicket, ...current]);
-    }
-
-    setModalOpen(false);
+    if (!form.title.trim() || !project) return;
+    try {
+      const payload = { title: form.title, description: form.description, status: API_STATUS[form.status], priority: API_PRIORITY[form.priority], type: form.type, dueDate: form.dueDate || null, featureId: features.find((item) => item.title === form.feature)?.id || null, assignedTo: form.assignee || null };
+      if (editingTicket) await apiRequest(`/tickets/${editingTicket.apiId}`, { method: "PATCH", body: JSON.stringify(payload) });
+      else await apiRequest("/tickets", { method: "POST", body: JSON.stringify({ ...payload, projectId: project.id }) });
+      setModalOpen(false); await refreshWorkspace();
+    } catch (error) { setApiError(error.message); }
   }
 
-  function moveTicket(ticket, status) {
-    setTickets((current) =>
-      current.map((item) =>
-        item.id === ticket.id
-          ? { ...item, status, updated: "À l'instant" }
-          : item
-      )
-    );
-
-    setSelectedTicket((current) =>
-      current?.id === ticket.id ? { ...current, status } : current
-    );
+  async function moveTicket(ticket, status) {
+    try {
+      await apiRequest(`/tickets/${ticket.apiId || ticket.id}/status`, { method: "PATCH", body: JSON.stringify({ status: API_STATUS[status] }) });
+      await refreshWorkspace();
+      setSelectedTicket((current) => current?.id === ticket.id ? { ...current, status } : current);
+    } catch (error) { setApiError(error.message); }
   }
 
   function resetFilters() {
@@ -162,6 +181,8 @@ export default function App() {
     const PageComponent = amelPages[page];
     return <PageComponent setPage={setPage} />;
   }
+
+  if (!localStorage.getItem("token")) return <Home setPage={setPage} />;
 
   const descriptions = {
     Dashboard: "Retrouve les informations importantes de ton espace.",
@@ -207,7 +228,7 @@ export default function App() {
               <span className="nav-icon">{item.icon}</span>
               {item.id}
               {item.id === "Mes tickets" && (
-                <span className="nav-count">{tickets.length}</span>
+                <span className="nav-count">{normalizedTickets.length}</span>
               )}
             </button>
           ))}
@@ -228,18 +249,13 @@ export default function App() {
           </div>
 
           <div className="sidebar-profile">
-            <div className="avatar profile-avatar">S</div>
+            <div className="avatar profile-avatar">{user?.firstName?.[0] || "U"}</div>
             <div>
-              <strong>Sarah Loukkal</strong>
-              <span>Administratrice</span>
+              <strong>{[user?.firstName, user?.lastName].filter(Boolean).join(" ") || "Mon compte"}</strong>
+              <span>{user?.email || ""}</span>
             </div>
           </div>
 
-          <div className="sidebar-profile">
-            <button className="text-button" onClick={() => setPage("Home")}>
-              Ouvrir les pages de l'équipe
-            </button>
-          </div>
         </div>
       </aside>
 
@@ -263,11 +279,13 @@ export default function App() {
             <button className="notification-button" title="Notifications">
               ♧<i />
             </button>
-            <div className="avatar profile-avatar">S</div>
+            <button className="text-button" onClick={() => { localStorage.removeItem("token"); localStorage.removeItem("user"); setUser(null); setTickets([]); setPage("Home"); }}>Se déconnecter</button>
           </div>
         </header>
 
         <div className="page-content">
+          {apiError && <div role="alert" className="api-notice">{apiError} <button onClick={refreshWorkspace}>Réessayer</button></div>}
+          {loading && <div className="api-notice">Chargement des données…</div>}
           <div className="page-heading">
             <div>
               <p className="eyebrow">TASKFLOW / WORKSPACE</p>
@@ -284,8 +302,8 @@ export default function App() {
 
           {page === "Dashboard" && (
             <Dashboard
-              tickets={tickets}
-              features={features}
+              tickets={normalizedTickets}
+              features={features.map((feature) => ({ ...feature, name: feature.title, status: "En cours" }))}
               onCreate={openCreate}
               onSelect={setSelectedTicket}
               onNavigate={(nextPage) => setPage(nextPage)}
@@ -320,8 +338,8 @@ export default function App() {
 
           {page === "Features" && (
             <Features
-              features={features}
-              tickets={tickets}
+              features={features.map((feature) => ({ ...feature, name: feature.title, status: "En cours" }))}
+              tickets={normalizedTickets}
               onNavigate={(featureName) => {
                 setPage("Mes tickets");
                 setSearch(featureName);
@@ -330,10 +348,10 @@ export default function App() {
           )}
 
           {page === "Projets" && (
-            <Projects tickets={tickets} Butterfly={Butterfly} />
+            <Projects tickets={normalizedTickets} Butterfly={Butterfly} project={project} />
           )}
 
-          {page === "Équipe" && <Team />}
+          {page === "Équipe" && <Team members={members} />}
 
           <footer className="app-footer">
             <span>
@@ -352,7 +370,8 @@ export default function App() {
           editingTicket={editingTicket}
           form={form}
           setForm={setForm}
-          features={features}
+          features={features.map((feature) => ({ ...feature, name: feature.title }))}
+          members={members.map((member) => member.user)}
           onClose={() => setModalOpen(false)}
           onSave={saveTicket}
         />

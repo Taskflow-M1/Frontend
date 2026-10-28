@@ -1,7 +1,7 @@
 
 import Badge from "./Badge";
 
-export default function Projects({ tickets, Butterfly }) {
+export default function Projects({ tickets, Butterfly, project }) {
   const done = tickets.filter(
     (ticket) => ticket.status === "Terminé"
   ).length;
@@ -18,7 +18,7 @@ export default function Projects({ tickets, Butterfly }) {
           <Badge tone="progress">Actif</Badge>
         </div>
 
-        <h2>TaskFlow</h2>
+        <h2>{project?.name || "Mon projet"}</h2>
         <p>
           Application de gestion de projets et de tickets inspirée des
           outils agiles.
@@ -35,14 +35,14 @@ export default function Projects({ tickets, Butterfly }) {
 
         <div className="project-footer">
           <span>☷ {tickets.length} tickets</span>
-          <span>♧ 4 membres</span>
+          <span>♧ Projet connecté</span>
         </div>
       </article>
 
       <div className="add-project-card">
         <span>＋</span>
         <strong>Nouveau projet</strong>
-        <small>La création sera connectée au backend prochainement.</small>
+        <small>La création d’un projet supplémentaire se fait depuis la gestion des équipes.</small>
       </div>
     </div>
   );

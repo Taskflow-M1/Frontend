@@ -1,12 +1,32 @@
 import butterfly from "../assets/butterfly.png";
+import { useState } from "react";
+import { apiRequest } from "../api/client";
 import "./SignUp.css";
 
 function SignUp({ setPage }) {
-  function handleSubmit(event) {
-    event.preventDefault();
+  const [form, setForm] = useState({ name: "", email: "", password: "", confirmation: "", code: "" });
+  const [codeSent, setCodeSent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
 
-    // L'inscription réelle sera ajoutée plus tard.
-    alert("L'inscription sera bientôt disponible !");
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setError("");
+    if (form.password !== form.confirmation) { setError("Les mots de passe ne correspondent pas."); return; }
+    const [firstName, ...lastNameParts] = form.name.trim().split(/\s+/);
+    setBusy(true);
+    try {
+      if (!codeSent) {
+        await apiRequest("/auth/send-verification-code", { method: "POST", body: JSON.stringify({ email: form.email, firstName }) });
+        setCodeSent(true);
+      } else {
+        const result = await apiRequest("/auth/verify-email-code", { method: "POST", body: JSON.stringify({ email: form.email, password: form.password, firstName, lastName: lastNameParts.join(" "), code: form.code }) });
+        localStorage.setItem("token", result.token);
+        localStorage.setItem("user", JSON.stringify(result.user));
+        setPage("Dashboard");
+      }
+    } catch (err) { setError(err.message); }
+    finally { setBusy(false); }
   }
 
   return (
@@ -53,7 +73,7 @@ function SignUp({ setPage }) {
                 id="signup-name"
                 type="text"
                 placeholder="Votre nom complet"
-                required
+                required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
               />
             </div>
 
@@ -64,7 +84,7 @@ function SignUp({ setPage }) {
                 id="signup-email"
                 type="email"
                 placeholder="exemple@email.com"
-                required
+                required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} readOnly={codeSent}
               />
             </div>
 
@@ -76,7 +96,7 @@ function SignUp({ setPage }) {
                 type="password"
                 placeholder="Choisissez un mot de passe"
                 minLength={8}
-                required
+                required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
               />
               <small>8 caractères minimum.</small>
             </div>
@@ -91,12 +111,14 @@ function SignUp({ setPage }) {
                 type="password"
                 placeholder="Répétez votre mot de passe"
                 minLength={8}
-                required
+                required value={form.confirmation} onChange={(e) => setForm({ ...form, confirmation: e.target.value })}
               />
             </div>
 
-            <button className="signup-submit" type="submit">
-              Créer mon compte →
+            {codeSent && <div className="signup-field"><label htmlFor="signup-code">Code reçu par e-mail</label><input id="signup-code" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{4}" maxLength={4} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.replace(/\D/g, "").slice(0, 4) })} required /><small>Entrez le code à quatre chiffres envoyé à votre adresse.</small></div>}
+            {error && <p role="alert" className="form-error">{error}</p>}
+            <button className="signup-submit" type="submit" disabled={busy}>
+              {busy ? "Veuillez patienter…" : codeSent ? "Valider et créer mon compte →" : "Créer mon compte →"}
             </button>
           </form>
 
