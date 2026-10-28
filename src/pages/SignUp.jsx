@@ -17,10 +17,11 @@ function SignUp({ setPage }) {
     setBusy(true);
     try {
       if (!codeSent) {
-        await apiRequest("/auth/send-verification-code", { method: "POST", body: JSON.stringify({ email: form.email, firstName }) });
+        await apiRequest("/auth/register", { method: "POST", body: JSON.stringify({ email: form.email, password: form.password, firstName, ...(lastNameParts.length ? { lastName: lastNameParts.join(" ") } : {}) }) });
         setCodeSent(true);
       } else {
-        const result = await apiRequest("/auth/verify-email-code", { method: "POST", body: JSON.stringify({ email: form.email, password: form.password, firstName, lastName: lastNameParts.join(" "), code: form.code }) });
+        const result = await apiRequest("/auth/verify-email-code", { method: "POST", body: JSON.stringify({ email: form.email, password: form.password, firstName, ...(lastNameParts.length ? { lastName: lastNameParts.join(" ") } : {}), code: form.code }) });
+        if (!result?.token || !result?.user) throw new Error("La validation n’a pas retourné de session. Veuillez réessayer.");
         localStorage.setItem("token", result.token);
         localStorage.setItem("user", JSON.stringify(result.user));
         setPage("Dashboard");
