@@ -1,16 +1,11 @@
-# React + Vite
+# TaskFlow — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+## Démarrage
 
-Currently, two official plugins are available:
+1. Depuis `Backend`, copier `.env.example` vers `.env`, renseigner MongoDB, un `JWT_SECRET` de développement et les identifiants Resend (`RESEND_API_KEY` et `RESEND_FROM_EMAIL`). L’envoi de codes e-mail nécessite une clé Resend valide et une adresse expéditrice autorisée par Resend.
+2. Démarrer MongoDB puis lancer l’API depuis `Backend` avec `npm install` et `npm run dev`.
+3. Depuis `Frontend`, copier `.env.example` vers `.env`, lancer `npm install`, puis `npm run dev`.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+`VITE_API_URL` pointe par défaut vers `http://localhost:3000/api`. Si le backend utilise un autre port, modifier cette variable et ajouter l’origine Vite à `CORS_ORIGIN` côté backend.
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+À la première connexion, TaskFlow crée automatiquement une équipe et un projet pour l’utilisateur s’il n’en possède pas. Les tickets, membres et fonctionnalités affichés proviennent ensuite de l’API et sont persistés dans MongoDB.

@@ -1,12 +1,23 @@
 import butterfly from "../assets/butterfly.png";
+import { useState } from "react";
+import { apiRequest } from "../api/client";
 import "./SignIn.css";
 
 function SignIn({ setPage }) {
-  function handleSubmit(event) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  async function handleSubmit(event) {
     event.preventDefault();
-
-    // Pour le moment, le formulaire est uniquement visuel.
-    alert("La connexion sera bientôt disponible !");
+    setError(""); setBusy(true);
+    try {
+      const result = await apiRequest("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
+      localStorage.setItem("token", result.token);
+      localStorage.setItem("user", JSON.stringify(result.user));
+      setPage("Dashboard");
+    } catch (err) { setError(err.message); }
+    finally { setBusy(false); }
   }
 
   return (
@@ -56,7 +67,7 @@ function SignIn({ setPage }) {
                 id="signin-email"
                 type="email"
                 placeholder="exemple@email.com"
-                required
+                required value={email} onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
@@ -67,12 +78,13 @@ function SignIn({ setPage }) {
                 id="signin-password"
                 type="password"
                 placeholder="Entrez votre mot de passe"
-                required
+                required value={password} onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 
-            <button className="signin-submit" type="submit">
-              Se connecter →
+            {error && <p role="alert" className="form-error">{error}</p>}
+            <button className="signin-submit" type="submit" disabled={busy}>
+              {busy ? "Connexion…" : "Se connecter →"}
             </button>
           </form>
 
