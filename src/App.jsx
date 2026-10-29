@@ -144,5 +144,24 @@ export default function App() {
 }
 
 function Help({ onNavigate }) {
+  const [showHelp, setShowHelp] = useState(false);
+  const heading = useRef(null);
+  useEffect(() => { if (showHelp) heading.current?.focus(); }, [showHelp]);
+
+  if (!showHelp) return <section className="panel help-choice" aria-labelledby="help-choice-title">
+    <span className="help-choice-sparkle" aria-hidden="true">✦</span>
+    <p className="eyebrow">UN PETIT COUP DE MAIN ?</p>
+    <h2 id="help-choice-title">C’est quoi ton mood ?</h2>
+    <p>Un peu d’aide ou tu gères déjà comme une queen ?</p>
+    <div className="help-choice-actions">
+      <button className="help-choice-card" onClick={() => setShowHelp(true)}><span className="help-choice-emoji" aria-hidden="true">🎀</span><strong>I'm just a girl</strong><span>Un petit guide, s’il te plaît</span></button>
+      <button className="help-choice-card help-choice-independent" onClick={() => onNavigate("Dashboard")}><span className="help-choice-emoji" aria-hidden="true">💪</span><strong>Strong independent women</strong><span>Je gère, retour au tableau de bord</span></button>
+    </div>
+  </section>;
+
+  return <><div className="help-back"><button className="text-button" onClick={() => setShowHelp(false)}>← Changer de mood</button></div><div ref={heading} tabIndex={-1} aria-label="Guide d’aide"><HelpGuide onNavigate={onNavigate} /></div></>;
+}
+
+function HelpGuide({ onNavigate }) {
   return <section className="panel help-page"><h2>Bien démarrer</h2><ol><li>Créez votre équipe, puis ajoutez vos collaborateurs par leur adresse e-mail. Ils doivent déjà avoir un compte TaskFlow.</li><li>Créez un projet avec une clé courte qui identifiera ses tickets.</li><li>Regroupez le travail dans des features et créez vos tickets depuis le tableau de bord, la liste ou le Kanban.</li><li>Assignez les tickets, échangez dans les commentaires et suivez les changements dans l’historique.</li></ol><h3>Les rôles</h3><p>Les administrateurs gèrent l’équipe et ses membres. Les chefs de projet gèrent les projets et les features. Les développeurs font avancer leurs tickets jusqu’à la recette ; les testeurs peuvent valider la recette et rouvrir les tickets. Les permissions sont contrôlées par le serveur.</p><h3>Votre espace personnel</h3><p>Votre profil permet de changer votre photo et votre mot de passe. Vos tâches personnelles restent privées.</p><div className="management-actions"><button className="primary-button" onClick={() => onNavigate("Équipe")}>Gérer mes équipes</button><button className="secondary-button" onClick={() => onNavigate("Profile")}>Mon profil</button></div></section>;
 }

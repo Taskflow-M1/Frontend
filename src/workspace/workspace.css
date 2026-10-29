@@ -27,6 +27,20 @@ progress { width: 100%; height: 12px; accent-color: #d64b9b; }
 .activity-list p { font-size: 12px; color: #766d85; margin: 5px 0; }
 .help-page { font-size: 14px; line-height: 1.8; }
 .help-page li { margin: 12px 0; }
+.help-choice { text-align: center; padding: clamp(28px, 5vw, 64px) 24px; background: radial-gradient(ellipse at top, #fff0f8, #fff 70%); }
+.help-choice-sparkle { display: inline-block; color: var(--pink); font-size: 42px; }
+.help-choice h2 { margin: 12px 0; font-family: "Manrope", sans-serif; font-size: clamp(24px, 4vw, 36px); }
+.help-choice > p:not(.eyebrow) { color: #716981; }
+.help-choice-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; max-width: 740px; margin: 32px auto 0; }
+.help-choice-card { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 30px 18px; border: 1px solid #f3c6df; border-radius: 20px; background: #fff5fa; color: #82335e; transition: transform .18s ease, box-shadow .18s ease; }
+.help-choice-card strong { font-size: 19px; }
+.help-choice-card > span:last-child { font-size: 13px; }
+.help-choice-emoji { font-size: 38px; }
+.help-choice-independent { background: #f6f1ff; border-color: #ddd0f4; color: #63468e; }
+.help-choice-card:hover { transform: translateY(-4px); box-shadow: 0 12px 26px #59346d14; }
+.help-back { margin-bottom: 12px; }
+@media (max-width: 600px) { .help-choice-actions { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .help-choice-card { transition: none; } .help-choice-card:hover { transform: none; } }
 .danger-text { color: #b82949; }
 .empty-state .primary-button { display: inline-block; margin: 12px; }
 .modal-card form { min-width: 0; }
